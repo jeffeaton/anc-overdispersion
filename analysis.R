@@ -61,9 +61,11 @@ workdir <- "/Volumes/jeff/anc-overdispersion/"
 didewin::didewin_config_global(credentials="jwe08", cluster="fi--didemrchnb", workdir=workdir)
 
 ctx <- context::context_save(workdir, packages="epp",
-                             package_sources=context::package_sources(github=c("jeffeaton/anclik/anclik@79904d4/"),
-                                                                      local="~/Documents/Code/R/epp/"),
+                             package_sources=context::package_sources(github=c("jeffeaton/anclik/anclik@79904d4/",
+                                                                               "jeffeaton/epp@8d17e41")),
                              sources="functions.R")
+
+
 
 mrcq <- didewin::queue_didewin(ctx, initialise=FALSE)
 
@@ -156,12 +158,6 @@ library(parallel)
 options(mc.cores=6)
 
 fitsim <- mclapply(allfit, function(set){ print(paste(attr(set, "country"), attr(set, "region"))); lapply(set, sim_outputs)})
-
-fitsim <- list()
-fitsim[1:16] <- mclapply(allfit[1:16], function(set){ print(paste(attr(set, "country"), attr(set, "region"))); lapply(set, sim_outputs)})
-fitsim[16+1:16] <- mclapply(allfit[16+1:16], function(set){ print(paste(attr(set, "country"), attr(set, "region"))); lapply(set, sim_outputs)})
-fitsim[33:40] <- mclapply(allfit[33:40], function(set){ print(paste(attr(set, "country"), attr(set, "region"))); lapply(set, sim_outputs)})
-names(fitsim) <- names(allfit)
 
 nohhs <- mclapply(nohhs, lapply, sim_outputs)
 
@@ -514,6 +510,8 @@ anova(lm(logvinfl ~ country, dat))
 summary(lm(logvinfl ~ nstrat, dat))
 summary(lm(logvinfl ~ nsite, dat))
 summary(lm(logvinfl ~ medobs, dat))
+
+t.test(subset(dat, region == "Urban")$logvinfl, subset(dat, region == "Rural")$logvinfl, paired=TRUE)
 
 
 ############################################################
